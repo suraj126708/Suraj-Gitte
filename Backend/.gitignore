@@ -1,0 +1,12 @@
+# Ignore .env file containing sensitive information
+.env
+
+# Node modules folder
+node_modules/
+
+# Logs
+logs/
+*.log
+
+# Other files that are generally not committed to version control
+.DS_Store

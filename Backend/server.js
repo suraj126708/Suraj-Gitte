@@ -27,12 +27,8 @@ const mongoURI = process.env.MONGO_URI;
 console.log("Connecting to MongoDB...");
 mongoose
   .connect(mongoURI)
-  .then(() => {
-    console.log("Successfully connected to MongoDB");
-  })
-  .catch((err) => {
-    console.error("MongoDB connection error:", err);
-  });
+  .then(() => {})
+  .catch((err) => {});
 
 // Mongoose Schema and Model
 const Contact = mongoose.model(
@@ -46,9 +42,6 @@ const Contact = mongoose.model(
 
 // POST /api/contact - Add debugging for incoming requests and errors
 app.post("/api/contact", async (req, res) => {
-  console.log("Incoming POST request to /api/contact");
-  console.log("Request Body:", req.body);
-
   const { name, email, message } = req.body;
 
   if (!name || !email || !message) {
@@ -64,7 +57,6 @@ app.post("/api/contact", async (req, res) => {
 
   try {
     const savedContact = await newContact.save();
-    console.log("Contact saved to MongoDB:", savedContact);
     res.status(200).json({ success: "Message sent successfully!" });
   } catch (error) {
     console.error("Error saving contact to MongoDB:", error);

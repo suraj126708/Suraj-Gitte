@@ -1,5 +1,3 @@
-// server.js (Backend Code)
-
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
@@ -8,11 +6,22 @@ require("dotenv").config();
 
 const app = express();
 
+// Middleware
 app.use(bodyParser.json());
-app.use(cors());
 
+// Debugging CORS configuration
+const corsOptions = {
+  origin: "https://suraj-gitte-portfolio.vercel.app",
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true,
+};
+console.log("CORS Configuration:", corsOptions);
+
+app.use(cors(corsOptions));
+
+// MongoDB connection
 const mongoURI = process.env.MONGO_URI;
-
+console.log("Connecting to MongoDB...");
 mongoose
   .connect(mongoURI)
   .then(() => {
@@ -22,6 +31,7 @@ mongoose
     console.error("MongoDB connection error:", err);
   });
 
+// Mongoose Schema and Model
 const Contact = mongoose.model(
   "Contact",
   new mongoose.Schema({
@@ -31,10 +41,15 @@ const Contact = mongoose.model(
   })
 );
 
+// POST /api/contact - Add debugging for incoming requests and errors
 app.post("/api/contact", async (req, res) => {
+  console.log("Incoming POST request to /api/contact");
+  console.log("Request Body:", req.body);
+
   const { name, email, message } = req.body;
 
   if (!name || !email || !message) {
+    console.error("Validation Error: Missing required fields");
     return res.status(400).json({ error: "All fields are required" });
   }
 
@@ -45,14 +60,17 @@ app.post("/api/contact", async (req, res) => {
   });
 
   try {
-    await newContact.save();
+    const savedContact = await newContact.save();
+    console.log("Contact saved to MongoDB:", savedContact);
     res.status(200).json({ success: "Message sent successfully!" });
   } catch (error) {
+    console.error("Error saving contact to MongoDB:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
 
 app.get("/test", (req, res) => {
+  console.log("GET request received at /test");
   res.send("Hello from server");
 });
 

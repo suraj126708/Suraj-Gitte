@@ -31,7 +31,7 @@ function ContactUs() {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/contact",
+        "https://suraj-gitte.vercel.app/api/contact",
         formData
       );
       handleSuccess(response.data.success);

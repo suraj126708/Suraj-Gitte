@@ -9,15 +9,22 @@ const app = express();
 // Middleware
 app.use(bodyParser.json());
 
-// Debugging CORS configuration
-const corsOptions = {
-  origin: "https://suraj-gitte-portfolio.vercel.app",
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  credentials: true,
-};
-console.log("CORS Configuration:", corsOptions);
+app.use(cors());
 
-app.use(cors(corsOptions));
+const allowedOrigins = ["https://suraj-gitte-portfolio.vercel.app"];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
 
 // MongoDB connection
 const mongoURI = process.env.MONGO_URI;

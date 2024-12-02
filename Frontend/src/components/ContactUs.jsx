@@ -31,7 +31,7 @@ function ContactUs() {
 
     try {
       const response = await axios.post(
-        "https://suraj-gitte-api.vercel.app/api/contact",
+        "https://suraj-gitte-backend.onrender.com/api/contact",
         formData
       );
       handleSuccess(response.data.success);

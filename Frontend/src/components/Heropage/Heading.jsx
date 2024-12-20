@@ -55,7 +55,7 @@ function Heading() {
           Want to know more about my journey and skills?
         </p>
         <a
-          href="https://acrobat.adobe.com/id/urn:aaid:sc:ap:15e40de0-2521-4b7a-a1de-921cf90631c3"
+          href="https://drive.google.com/file/d/18w28IKx4sep4gh4WmUmvbEIb65RYOS4B/view?usp=sharing"
           target="_blank"
           className="hover:cursor-pointer"
           rel="noopener noreferrer"

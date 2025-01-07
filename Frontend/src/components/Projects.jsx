@@ -31,7 +31,7 @@ function Projects() {
       year: 2021,
       description: "My old Portfolio",
       image:
-        "https://media.licdn.com/dms/image/v2/D4D22AQFwTm_x1zORfA/feedshare-shrink_800/feedshare-shrink_800/0/1712207897756?e=1735776000&v=beta&t=S8Mva5SYB-aXnxqlv2JBO68tOoqeHrnzO7MmhjYbK4s",
+        "https://media.licdn.com/dms/image/v2/D4D22AQFwTm_x1zORfA/feedshare-shrink_800/feedshare-shrink_800/0/1712207897756?e=1739404800&v=beta&t=7Jo1ic0j6w8sPTb79G6aOO19XFqJ2jIPTgrUz2XOVME",
       link: "https://suraj126708.github.io/Myportfolio/",
     },
   ];

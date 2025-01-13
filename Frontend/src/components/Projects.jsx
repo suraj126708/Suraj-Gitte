@@ -2,7 +2,7 @@ import ProjectCard from "./Heropage/ProjectCard";
 import ngo from "../assets/ngo.png";
 import gym from "../assets/gym.png";
 import coalMine from "../assets/coalmine.png";
-import advisor from "../assets/coalmine.png";
+import advisor from "../assets/Screenshot 2025-01-13 131409.png";
 
 
 function Projects() {

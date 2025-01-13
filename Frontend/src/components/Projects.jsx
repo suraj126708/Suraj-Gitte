@@ -2,6 +2,8 @@ import ProjectCard from "./Heropage/ProjectCard";
 import ngo from "../assets/ngo.png";
 import gym from "../assets/gym.png";
 import coalMine from "../assets/coalmine.png";
+import advisor from "../assets/coalmine.png";
+
 
 function Projects() {
   const projectData = [
@@ -27,12 +29,11 @@ function Projects() {
       link: "https://coal-mines-worker-safety-website-ui.vercel.app/",
     },
     {
-      name: "PortFolio",
-      year: 2021,
-      description: "My old Portfolio",
-      image:
-        "https://media.licdn.com/dms/image/v2/D4D22AQFwTm_x1zORfA/feedshare-shrink_800/feedshare-shrink_800/0/1712207897756?e=1739404800&v=beta&t=7Jo1ic0j6w8sPTb79G6aOO19XFqJ2jIPTgrUz2XOVME",
-      link: "https://suraj126708.github.io/Myportfolio/",
+      name: "Financial Advisor",
+      year:"2024",
+      description: "Financial Advisor",
+      image: advisor,
+      link: "https://build-a-website-hackathon.vercel.app/",
     },
   ];
 

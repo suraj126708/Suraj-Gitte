@@ -9,7 +9,8 @@
 6. Page Replacement Algorithms
 7. Memory Management Strategies
 8. Disk Scheduling Algorithms
-
+9. Scheduling
+    
 ## Complete Code
 
 ```c
@@ -957,4 +958,609 @@ int main() {
 
     return 0;
 }
+
+// ------------------------Scheduling (FCFS)---------------------------
+#include <stdio.h>
+
+struct Process {
+  int pid, arrival_time, burst_time, start_time, completion_time, waiting_time,
+      turnaround_time;
+};
+
+void sortByArrival(struct Process p[], int n) {
+  struct Process temp;
+  for (int i = 0; i < n - 1; i++) {
+    for (int j = i + 1; j < n; j++) {
+      if (p[i].arrival_time > p[j].arrival_time) {
+        temp = p[i];
+        p[i] = p[j];
+        p[j] = temp;
+      }
+    }
+  }
+}
+
+void calculateTimes(struct Process p[], int n) {
+  int current_time = 0;
+
+  for (int i = 0; i < n; i++) {
+    p[i].start_time =
+        (current_time > p[i].arrival_time) ? current_time : p[i].arrival_time;
+    p[i].completion_time = p[i].start_time + p[i].burst_time;
+    p[i].waiting_time = p[i].start_time - p[i].arrival_time;
+    p[i].turnaround_time = p[i].completion_time - p[i].arrival_time;
+
+    current_time = p[i].completion_time;
+  }
+}
+
+void printProcesses(struct Process p[], int n) {
+  printf("\nPID\tAT\tBT\tST\tCT\tWT\tTT\n");
+  for (int i = 0; i < n; i++) {
+    printf("%d\t%d\t%d\t%d\t%d\t%d\t%d\n", p[i].pid, p[i].arrival_time,
+           p[i].burst_time, p[i].start_time, p[i].completion_time,
+           p[i].waiting_time, p[i].turnaround_time);
+  }
+}
+
+void printGanttChart(struct Process p[], int n) {
+  printf("\nGantt Chart:\n");
+
+  printf(" ");
+  for (int i = 0; i < n; i++)
+    printf("----");
+  printf("\n|");
+
+  for (int i = 0; i < n; i++)
+    printf(" P%d |", p[i].pid);
+  printf("\n ");
+
+  for (int i = 0; i < n; i++)
+    printf("----");
+  printf("\n");
+
+  printf("0");
+  for (int i = 0; i < n; i++)
+    printf("   %d", p[i].completion_time);
+  printf("\n");
+}
+
+int main() {
+  int n;
+
+  printf("Enter number of processes: ");
+  scanf("%d", &n);
+
+  struct Process p[n];
+
+  for (int i = 0; i < n; i++) {
+    p[i].pid = i + 1;
+    printf("Enter Arrival Time and Burst Time for Process %d: ", p[i].pid);
+    scanf("%d %d", &p[i].arrival_time, &p[i].burst_time);
+  }
+
+  sortByArrival(p, n);
+  calculateTimes(p, n);
+  printProcesses(p, n);
+  printGanttChart(p, n);
+
+  float avg_wt = 0, avg_tat = 0;
+  for (int i = 0; i < n; i++) {
+    avg_wt += p[i].waiting_time;
+    avg_tat += p[i].turnaround_time;
+  }
+
+  printf("\nAverage Waiting Time: %.2f", avg_wt / n);
+  printf("\nAverage Turnaround Time: %.2f\n", avg_tat / n);
+
+  return 0;
+}
+
+--------------------------- Scheduling (priority - Non premetive )-----------------------
+#include <stdio.h>
+
+struct Process {
+    int pid;        
+    int at;         
+    int bt;        
+    int priority;   
+    int wt;        
+    int tat;        
+};
+
+void sortProcesses(struct Process p[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = i + 1; j < n; j++) {
+            if (p[i].at > p[j].at || (p[i].at == p[j].at && p[i].priority > p[j].priority)) {
+                struct Process temp = p[i];
+                p[i] = p[j];
+                p[j] = temp;
+            }
+        }
+    }
+}
+
+void calculateTimes(struct Process p[], int n) {
+    int completion_time = 0;
+    p[0].wt = 0; 
+    for (int i = 0; i < n; i++) {
+        if (completion_time < p[i].at) {
+            completion_time = p[i].at; // CPU idle time adjustment
+        }
+        p[i].wt = completion_time - p[i].at;
+        completion_time += p[i].bt;
+        p[i].tat = p[i].wt + p[i].bt;
+    }
+}
+
+void printProcesses(struct Process p[], int n) {
+    printf("\nProcess Details:\n");
+    printf("PID\tAT\tBT\tPriority\tWT\tTAT\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d\t%d\t%d\t%d\t\t%d\t%d\n", p[i].pid, p[i].at, p[i].bt, p[i].priority, p[i].wt, p[i].tat);
+    }
+}
+
+void printGanttChart(struct Process p[], int n) {
+    printf("\nGantt Chart:\n");
+
+    printf(" ");
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < p[i].bt; j++) printf("--");
+        printf(" ");
+    }
+    printf("\n|");
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < p[i].bt - 1; j++) printf(" ");
+        printf("P%d", p[i].pid);
+        for (int j = 0; j < p[i].bt - 1; j++) printf(" ");
+        printf("|");
+    }
+
+    printf("\n ");
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < p[i].bt; j++) printf("--");
+        printf(" ");
+    }
+    printf("\n0");
+
+    int time = 0;
+    for (int i = 0; i < n; i++) {
+        time += p[i].bt;
+        printf("%*d", p[i].bt * 2, time);
+    }
+    printf("\n");
+}
+
+int main() {
+    int n;
+
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+
+    struct Process p[n];
+
+    for (int i = 0; i < n; i++) {
+        printf("Enter Arrival Time, Burst Time and Priority for Process %d: ", i + 1);
+        scanf("%d %d %d", &p[i].at, &p[i].bt, &p[i].priority);
+        p[i].pid = i + 1;
+    }
+
+    sortProcesses(p, n);
+    calculateTimes(p, n);
+    printProcesses(p, n);
+    printGanttChart(p, n);
+
+    return 0;
+}
+
+------------------------ Priority (Premetive) ---------------------------
+#include <stdio.h>
+#include <limits.h>
+
+struct Process {
+    int pid;        
+    int at;         
+    int bt;         
+    int priority;   
+    int remaining;  
+    int wt;        
+    int tat;       
+};
+
+int findHighestPriority(struct Process p[], int n, int time) {
+    int minPriority = INT_MAX, index = -1;
+    for (int i = 0; i < n; i++) {
+        if (p[i].at <= time && p[i].remaining > 0) {  // not yet completed
+            if (p[i].priority < minPriority) { 
+                minPriority = p[i].priority;
+                index = i;
+            }
+        }
+    }
+    return index;
+}
+
+void calculateTimes(struct Process p[], int n) {
+    int completed = 0, time = 0;
+    int lastCompletionTime[n];
+
+    while (completed < n) {
+        int idx = findHighestPriority(p, n, time);
+        
+        if (idx == -1) {      
+            time++;
+            continue;
+        }
+
+        p[idx].remaining--; 
+        lastCompletionTime[idx] = time + 1; 
+        
+        if (p[idx].remaining == 0) {  
+            completed++;
+            p[idx].tat = lastCompletionTime[idx] - p[idx].at;
+            p[idx].wt = p[idx].tat - p[idx].bt;
+        }
+        
+        time++;
+    }
+}
+
+void printProcesses(struct Process p[], int n) {
+    printf("\nProcess Details:\n");
+    printf("PID\tAT\tBT\tPriority\tWT\tTAT\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d\t%d\t%d\t%d\t\t%d\t%d\n", p[i].pid, p[i].at, p[i].bt, p[i].priority, p[i].wt, p[i].tat);
+    }
+}
+
+void printGanttChart(struct Process p[], int n) {
+    int time = 0, completed = 0;
+    
+    printf("\nGantt Chart:\n");
+    printf(" ");
+
+    while (completed < n) {
+        int idx = findHighestPriority(p, n, time);
+
+        if (idx == -1) { 
+            time++;
+            continue;
+        }
+
+        printf(" P%d ", p[idx].pid);
+        p[idx].remaining--;
+
+        if (p[idx].remaining == 0) {
+            completed++;
+        }
+        
+        time++;
+    }
+
+    printf("\n");
+    
+    time = 0;
+    completed = 0;
+    printf("0");
+    while (completed < n) {
+        int idx = findHighestPriority(p, n, time);
+
+        if (idx == -1) { 
+            time++;
+            continue;
+        }
+
+        printf("   %d", time + 1);
+        p[idx].remaining--;
+
+        if (p[idx].remaining == 0) {
+            completed++;
+        }
+
+        time++;
+    }
+
+    printf("\n");
+}
+
+int main() {
+    int n;
+
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+
+    struct Process p[n];
+
+    for (int i = 0; i < n; i++) {
+        printf("Enter Arrival Time, Burst Time and Priority for Process %d: ", i + 1);
+        scanf("%d %d %d", &p[i].at, &p[i].bt, &p[i].priority);
+        p[i].pid = i + 1;
+        p[i].remaining = p[i].bt;
+    }
+
+    calculateTimes(p, n);
+    printProcesses(p, n);
+    printGanttChart(p, n);
+
+    return 0;
+}
+
+----------------------- Round Robin ----------------------
+
+#include <stdio.h>
+
+#define MAX_PROCESSES 100
+
+void roundRobin(int n, int burst_time[], int quantum) {
+    int remaining_time[MAX_PROCESSES];
+    int waiting_time[MAX_PROCESSES] = {0};
+    int turnaround_time[MAX_PROCESSES] = {0};
+    int total_waiting_time = 0, total_turnaround_time = 0;
+
+    for (int i = 0; i < n; i++) {
+        remaining_time[i] = burst_time[i];
+    }
+    int time = 0;
+    int done;
+    int gantt_process[MAX_PROCESSES * 10];
+    int gantt_time[MAX_PROCESSES * 10];
+    int gantt_index = 0;
+
+    do {
+        done = 1;
+        for (int i = 0; i < n; i++) {
+            if (remaining_time[i] > 0) {
+                done = 0;
+                gantt_process[gantt_index] = i + 1;
+                gantt_time[gantt_index] = time;
+                gantt_index++;
+
+                if (remaining_time[i] > quantum) {
+                    time += quantum;
+                    remaining_time[i] -= quantum;
+                } else {
+                    time += remaining_time[i];
+                    waiting_time[i] = time - burst_time[i];
+                    remaining_time[i] = 0;
+                }
+            }
+        }
+    } while (!done);
+    gantt_time[gantt_index] = time;
+
+    for (int i = 0; i < n; i++) {
+        turnaround_time[i] = burst_time[i] + waiting_time[i];
+        total_waiting_time += waiting_time[i];
+        total_turnaround_time += turnaround_time[i];
+    }
+
+    printf("\nProcess\tBurst Time\tWaiting Time\tTurnaround Time\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d\t%d\t\t%d\t\t%d\n", i + 1, burst_time[i], waiting_time[i], turnaround_time[i]);
+    }
+    printf("\nAverage Waiting Time: %.2f\n", (float)total_waiting_time / n);
+    printf("Average Turnaround Time: %.2f\n", (float)total_turnaround_time / n);
+
+    printf("\nGantt Chart:\n");
+    for (int i = 0; i < gantt_index; i++) {
+        printf("| P%d ", gantt_process[i]);
+    }
+    printf("|\n");
+
+    for (int i = 0; i <= gantt_index; i++) {
+        printf("%d    ", gantt_time[i]);
+    }
+    printf("\n");
+}
+
+int main() {
+    int n, quantum;
+    int burst_time[MAX_PROCESSES];
+
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+
+    printf("Enter burst times for each process:\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d :", i + 1);
+        scanf("%d", &burst_time[i]);
+    }
+
+    printf("Enter time quantum: ");
+    scanf("%d", &quantum);
+
+    roundRobin(n, burst_time, quantum);
+
+    return 0;
+}
+
+----------------------- SJF Non Premetive ----------------------
+#include <stdio.h>
+
+#define MAX_PROCESSES 100
+
+void roundRobin(int n, int burst_time[], int quantum) {
+    int remaining_time[MAX_PROCESSES];
+    int waiting_time[MAX_PROCESSES] = {0};
+    int turnaround_time[MAX_PROCESSES] = {0};
+    int total_waiting_time = 0, total_turnaround_time = 0;
+
+    for (int i = 0; i < n; i++) {
+        remaining_time[i] = burst_time[i];
+    }
+    int time = 0;
+    int done;
+    int gantt_process[MAX_PROCESSES * 10];
+    int gantt_time[MAX_PROCESSES * 10];
+    int gantt_index = 0;
+
+    do {
+        done = 1;
+        for (int i = 0; i < n; i++) {
+            if (remaining_time[i] > 0) {
+                done = 0;
+                gantt_process[gantt_index] = i + 1;
+                gantt_time[gantt_index] = time;
+                gantt_index++;
+
+                if (remaining_time[i] > quantum) {
+                    time += quantum;
+                    remaining_time[i] -= quantum;
+                } else {
+                    time += remaining_time[i];
+                    waiting_time[i] = time - burst_time[i];
+                    remaining_time[i] = 0;
+                }
+            }
+        }
+    } while (!done);
+    gantt_time[gantt_index] = time;
+
+    for (int i = 0; i < n; i++) {
+        turnaround_time[i] = burst_time[i] + waiting_time[i];
+        total_waiting_time += waiting_time[i];
+        total_turnaround_time += turnaround_time[i];
+    }
+
+    printf("\nProcess\tBurst Time\tWaiting Time\tTurnaround Time\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d\t%d\t\t%d\t\t%d\n", i + 1, burst_time[i], waiting_time[i], turnaround_time[i]);
+    }
+    printf("\nAverage Waiting Time: %.2f\n", (float)total_waiting_time / n);
+    printf("Average Turnaround Time: %.2f\n", (float)total_turnaround_time / n);
+
+    printf("\nGantt Chart:\n");
+    for (int i = 0; i < gantt_index; i++) {
+        printf("| P%d ", gantt_process[i]);
+    }
+    printf("|\n");
+
+    for (int i = 0; i <= gantt_index; i++) {
+        printf("%d    ", gantt_time[i]);
+    }
+    printf("\n");
+}
+
+int main() {
+    int n, quantum;
+    int burst_time[MAX_PROCESSES];
+
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+
+    printf("Enter burst times for each process:\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d :", i + 1);
+        scanf("%d", &burst_time[i]);
+    }
+
+    printf("Enter time quantum: ");
+    scanf("%d", &quantum);
+
+    roundRobin(n, burst_time, quantum);
+
+    return 0;
+}
+
+---------------------- SRTF Premetive -------------------
+
+#include <stdio.h>
+
+struct Process {
+  int pid, arrival_time, burst_time, start_time, completion_time, waiting_time,
+      turnaround_time;
+};
+
+void sortByArrivalAndBurstTime(struct Process p[], int n) {
+    struct Process temp;
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = i + 1; j < n; j++) {
+            if (p[i].arrival_time > p[j].arrival_time || 
+                (p[i].arrival_time == p[j].arrival_time && p[i].burst_time > p[j].burst_time)) {
+                temp = p[i];
+                p[i] = p[j];
+                p[j] = temp;
+            }
+        }
+    }
+}
+
+void calculateTimes(struct Process p[], int n) {
+  int current_time = 0;
+
+  for (int i = 0; i < n; i++) {
+    p[i].start_time =
+        (current_time > p[i].arrival_time) ? current_time : p[i].arrival_time;
+    p[i].completion_time = p[i].start_time + p[i].burst_time;
+    p[i].waiting_time = p[i].start_time - p[i].arrival_time;
+    p[i].turnaround_time = p[i].completion_time - p[i].arrival_time;
+
+    current_time = p[i].completion_time;
+  }
+}
+
+void printProcesses(struct Process p[], int n) {
+  printf("\nPID\tAT\tBT\tST\tCT\tWT\tTT\n");
+  for (int i = 0; i < n; i++) {
+    printf("%d\t%d\t%d\t%d\t%d\t%d\t%d\n", p[i].pid, p[i].arrival_time,
+           p[i].burst_time, p[i].start_time, p[i].completion_time,
+           p[i].waiting_time, p[i].turnaround_time);
+  }
+}
+
+void printGanttChart(struct Process p[], int n) {
+  printf("\nGantt Chart:\n");
+
+  printf(" ");
+  for (int i = 0; i < n; i++)
+    printf("----");
+  printf("\n|");
+
+  for (int i = 0; i < n; i++)
+    printf(" P%d |", p[i].pid);
+  printf("\n ");
+
+  for (int i = 0; i < n; i++)
+    printf("----");
+  printf("\n");
+
+  printf("0");
+  for (int i = 0; i < n; i++)
+    printf("   %d", p[i].completion_time);
+  printf("\n");
+}
+
+int main() {
+  int n;
+
+  printf("Enter number of processes: ");
+  scanf("%d", &n);
+
+  struct Process p[n];
+
+  for (int i = 0; i < n; i++) {
+    p[i].pid = i + 1;
+    printf("Enter Arrival Time and Burst Time for Process %d: ", p[i].pid);
+    scanf("%d %d", &p[i].arrival_time, &p[i].burst_time);
+  }
+
+  sortByArrivalAndBurstTime(p, n);
+  calculateTimes(p, n);
+  printProcesses(p, n);
+  printGanttChart(p, n);
+
+  float avg_wt = 0, avg_tat = 0;
+  for (int i = 0; i < n; i++) {
+    avg_wt += p[i].waiting_time;
+    avg_tat += p[i].turnaround_time;
+  }
+
+  printf("\nAverage Waiting Time: %.2f", avg_wt / n);
+  printf("\nAverage Turnaround Time: %.2f\n", avg_tat / n);
+
+  return 0;
+}
+
 

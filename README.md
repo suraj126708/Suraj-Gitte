@@ -1,31 +1,37 @@
-// synchronisation code
+# Synchronization Code Examples
 
+## Table of Contents
+1. Dining Philosophers Problem
+2. Producer-Consumer Problem
+3. Readers-Writers Problem
+4. Banker's Algorithm
+5. Deadlock Detection and Resolution
+6. Page Replacement Algorithms
+7. Memory Management Strategies
+8. Disk Scheduling Algorithms
+
+## Complete Code
+
+```c
+//---------- DINING PHILOSOPHERS ----------
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
 #include <semaphore.h>
 #include <unistd.h>
-
-#define N 5  // Number of philosophers
-
-sem_t forks[N];      // One semaphore per fork
-sem_t mutex;         // For clean printing (optional)
-
+#define N 5
+sem_t forks[N];
+sem_t mutex;
 void *philosopher(void *num) {
     int id = *(int *)num;
     free(num);
-
     int left = id;
     int right = (id + 1) % N;
-
     while (1) {
-        // Thinking
         sem_wait(&mutex);
         printf("Philosopher %d is thinking.\n", id);
         sem_post(&mutex);
         sleep(1);
-
-        // Odd-even fork pickup strategy to avoid deadlock
         if (id % 2 == 0) {
             sem_wait(&forks[left]);
             sem_wait(&forks[right]);
@@ -33,222 +39,168 @@ void *philosopher(void *num) {
             sem_wait(&forks[right]);
             sem_wait(&forks[left]);
         }
-
-        // Eating
         sem_wait(&mutex);
         printf("Philosopher %d is eating.\n", id);
         sem_post(&mutex);
         sleep(2);
-
-        // Put down forks
         sem_post(&forks[left]);
         sem_post(&forks[right]);
-
         sem_wait(&mutex);
         printf("Philosopher %d finished eating.\n", id);
         sem_post(&mutex);
-
         sleep(1);
     }
-
     return NULL;
 }
-
 int main() {
     pthread_t philosophers[N];
-
     sem_init(&mutex, 0, 1);
-
     for (int i = 0; i < N; i++) {
         sem_init(&forks[i], 0, 1);
     }
-
     for (int i = 0; i < N; i++) {
         int *id = malloc(sizeof(int));
         *id = i;
         pthread_create(&philosophers[i], NULL, philosopher, id);
     }
-
     for (int i = 0; i < N; i++) {
         pthread_join(philosophers[i], NULL);
     }
-
     sem_destroy(&mutex);
     for (int i = 0; i < N; i++) {
         sem_destroy(&forks[i]);
     }
-
     return 0;
 }
 
-------------------------------------------------------------
-
+//---------- PRODUCER-CONSUMER ----------
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
 #include <semaphore.h>
 #include <unistd.h>
-
 #define BUFFER_SIZE 10
-
 int buffer[BUFFER_SIZE];
 int in = 0, out = 0;
-
 sem_t empty, full;
 pthread_mutex_t mutex;
-
 void *producer(void *arg) {
     for (int i = 0; i < 10; i++) {
         int item = rand() % 100;
         sem_wait(&empty);
         pthread_mutex_lock(&mutex);
-
         buffer[in] = item;
         printf("Producer produced: %d\n", item);
         in = (in + 1) % BUFFER_SIZE;
-
         pthread_mutex_unlock(&mutex);
         sem_post(&full);
         sleep(1);
     }
     return NULL;
 }
-
 void *consumer(void *arg) {
     for (int i = 0; i < 10; i++) {
         sem_wait(&full);
         pthread_mutex_lock(&mutex);
-
         int item = buffer[out];
         printf("Consumer consumed: %d\n", item);
         out = (out + 1) % BUFFER_SIZE;
-
         pthread_mutex_unlock(&mutex);
         sem_post(&empty);
         sleep(1);
     }
     return NULL;
 }
-
 int main() {
     pthread_t prod, cons;
     sem_init(&empty, 0, BUFFER_SIZE);
     sem_init(&full, 0, 0);
     pthread_mutex_init(&mutex, NULL);
-
     pthread_create(&prod, NULL, producer, NULL);
     pthread_create(&cons, NULL, consumer, NULL);
-
     pthread_join(prod, NULL);
     pthread_join(cons, NULL);
-
     sem_destroy(&empty);
     sem_destroy(&full);
     pthread_mutex_destroy(&mutex);
-    
     return 0;
 }
 
---------------------------------------------------------------
-
+//---------- READERS-WRITERS ----------
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
 #include <semaphore.h>
 #include <unistd.h>
-
-sem_t mutex;       
-sem_t rw_mutex;   
-
-int read_count = 0;    
-int shared_data = 0;    
-
+sem_t mutex;
+sem_t rw_mutex;
+int read_count = 0;
+int shared_data = 0;
 void *reader(void *arg) {
     int id = *(int *)arg;
     free(arg);
-
     sem_wait(&mutex);
     read_count++;
     if (read_count == 1) {
-        sem_wait(&rw_mutex);  
+        sem_wait(&rw_mutex);
     }
     sem_post(&mutex);
-
     printf("Reader %d reads shared_data: %d\n", id, shared_data);
     sleep(1);
-
     sem_wait(&mutex);
     read_count--;
     if (read_count == 0) {
-        sem_post(&rw_mutex); 
+        sem_post(&rw_mutex);
     }
     sem_post(&mutex);
-
     return NULL;
 }
-
 void *writer(void *arg) {
     int id = *(int *)arg;
     free(arg);
-
-    sem_wait(&rw_mutex);  
-
+    sem_wait(&rw_mutex);
     shared_data += 10;
     printf("Writer %d updated shared_data to: %d\n", id, shared_data);
     sleep(1);
-
+    sem_post(&rw_mutex);
     return NULL;
 }
-
 int main() {
     pthread_t readers[5], writers[3];
-
     sem_init(&mutex, 0, 1);
     sem_init(&rw_mutex, 0, 1);
-
     for (int i = 0; i < 3; i++) {
         int *id = malloc(sizeof(int));
         *id = i + 1;
         pthread_create(&writers[i], NULL, writer, id);
     }
-
     for (int i = 0; i < 5; i++) {
         int *id = malloc(sizeof(int));
         *id = i + 1;
         pthread_create(&readers[i], NULL, reader, id);
     }
-
     for (int i = 0; i < 5; i++) {
         pthread_join(readers[i], NULL);
     }
-
     for (int i = 0; i < 3; i++) {
         pthread_join(writers[i], NULL);
     }
-
     sem_destroy(&mutex);
     sem_destroy(&rw_mutex);
-
     return 0;
-}"
-,
-"------------------------------------------------
-// Backers 
------------------------------------------------
+}
 
+//---------- BANKER'S ALGORITHM ----------
 #include <stdio.h>
 #include <stdbool.h>
-
 #define MAX_PROCESSES 5
 #define MAX_RESOURCES 3
-
 int available[MAX_RESOURCES];
 int max[MAX_PROCESSES][MAX_RESOURCES];
 int allocation[MAX_PROCESSES][MAX_RESOURCES];
 int need[MAX_PROCESSES][MAX_RESOURCES];
 int safeSequence[MAX_PROCESSES];
 int n, m;
-
 void calculateNeed() {
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
@@ -256,16 +208,12 @@ void calculateNeed() {
         }
     }
 }
-
 bool isSafeState() {
     int work[MAX_RESOURCES];
     bool finish[MAX_PROCESSES] = {false};
-    
-    // Work = Available
     for (int i = 0; i < m; i++) {
         work[i] = available[i];
     }
-    
     int count = 0; 
     while (count < n) {
         bool found = false;
@@ -294,7 +242,6 @@ bool isSafeState() {
     }
     return true;
 }
-
 bool requestResources(int process, int request[]) {
     for (int i = 0; i < m; i++) {
         if (request[i] > need[process][i]) {
@@ -306,20 +253,13 @@ bool requestResources(int process, int request[]) {
             return false;
         }
     }
-    
     for (int i = 0; i < m; i++) {
         available[i] -= request[i];
         allocation[process][i] += request[i];
         need[process][i] -= request[i];
     }
-    
     if (isSafeState()) {
         printf("Resources allocated successfully.\n");
-        // printf("System is in a safe state.\nSafe Sequence: ");
-        // for (int i = 0; i < n; i++) {
-        //     printf("P%d ", safeSequence[i]);
-        // }
-        // printf("\n");
         return true;
     } else {
         printf("Unsafe state detected! Rolling back allocation.\n");
@@ -331,7 +271,6 @@ bool requestResources(int process, int request[]) {
         return false;
     }
 }
-
 void printState() {
     printf("\nCurrent State:\n");
     printf("Available Resources: ");
@@ -353,33 +292,27 @@ void printState() {
         printf("\n");
     }
 }
-
 int main() {
     printf("Enter number of processes and resources: ");
     scanf("%d %d", &n, &m);
-    
     printf("Enter available resources: ");
     for (int i = 0; i < m; i++) {
         scanf("%d", &available[i]);
     }
-    
     printf("Enter Max matrix: \n");
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
             scanf("%d", &max[i][j]);
         }
     }
-    
     printf("Enter Allocation matrix: \n");
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
             scanf("%d", &allocation[i][j]);
         }
     }
-    
     calculateNeed();
     printState();
-    
     if (isSafeState()) {
         printf("System is in a safe state.\nSafe Sequence: ");
         for (int i = 0; i < n; i++) {
@@ -389,7 +322,6 @@ int main() {
     } else {
         printf("System is in an unsafe state!\n");
     }
-    
     int process, request[MAX_RESOURCES];
     printf("Enter process number (0-%d): ", n-1);
     scanf("%d", &process);
@@ -398,29 +330,22 @@ int main() {
         scanf("%d", &request[i]);
     }
     requestResources(process, request);
-    
     return 0;
-}",
-"----------------------------------------------------
-Deadlock
----------------------------------------------------
+}
 
+//---------- DEADLOCK DETECTION AND RESOLUTION ----------
 #include <stdio.h>
 #include <stdbool.h>
-
 #define MAX_PROCESSES 10
 #define MAX_RESOURCES 10
-
 bool isSafeState(int n, int m, int allocation[][MAX_RESOURCES], int need[][MAX_RESOURCES], int available[], int safeSequence[])
 {
     bool finished[MAX_PROCESSES] = {false};
     int work[MAX_RESOURCES];
-
     for (int j = 0; j < m; j++)
     {
         work[j] = available[j];
     }
-
     int count = 0;
     while (count < n)
     {
@@ -430,7 +355,6 @@ bool isSafeState(int n, int m, int allocation[][MAX_RESOURCES], int need[][MAX_R
             if (!finished[i])
             {
                 int j;
-
                 for (j = 0; j < m; j++)
                 {
                     if (need[i][j] > work[j])
@@ -448,37 +372,29 @@ bool isSafeState(int n, int m, int allocation[][MAX_RESOURCES], int need[][MAX_R
                 }
             }
         }
-
         if (!found)
         {
             break;
         }
     }
-
     return (count == n);
 }
-
 bool changeInRequestResources(int n, int m, int process, int request[],
                       int allocation[][MAX_RESOURCES], 
                       int available[], int need[][MAX_RESOURCES])
 {   
-
     int temp[MAX_RESOURCES];
     for (int j = 0; j < m; j++)
     {
         temp[j] = need[process][j];
     }    
-
     for (int j = 0; j < m; j++)
     {
         need[process][j] = request[j];
     }
-
     int safeSequence[MAX_PROCESSES];
-
     if (isSafeState(n, m, allocation, need, available, safeSequence))
     {
-        
         printf("The process safe sequence is:\n");
         for(int i  = 0; i<n;i++){
             printf("%d ",safeSequence[i]);
@@ -488,29 +404,23 @@ bool changeInRequestResources(int n, int m, int process, int request[],
     }
     else
     {
-
         for (int j = 0; j < m; j++)
         {
             need[process][j] = temp[j];
         }
-        
         return false;
     }
 }
-
 int main()
 {
     int n, m;
-
     printf("Enter the number of processes: ");
     scanf("%d", &n);
     printf("Enter the number of resource types: ");
     scanf("%d", &m);
-
     int allocation[MAX_PROCESSES][MAX_RESOURCES];
     int available[MAX_RESOURCES];
     int need[MAX_PROCESSES][MAX_RESOURCES];
-
     printf("\nEnter the allocation matrix:\n");
     for (int i = 0; i < n; i++)
     {
@@ -520,7 +430,6 @@ int main()
             scanf("%d", &allocation[i][j]);
         }
     }
-
     printf("\nEnter the request matrix:\n");
     for (int i = 0; i < n; i++)
     {
@@ -530,15 +439,11 @@ int main()
             scanf("%d", &need[i][j]);
         }
     }
-
     printf("\nEnter the available resources: ");
     for (int j = 0; j < m; j++)
     {
         scanf("%d", &available[j]);
     }   
-
-    
-
     int safeSequence[MAX_PROCESSES];
     if (isSafeState(n, m, allocation, need, available, safeSequence))
     {
@@ -553,11 +458,9 @@ int main()
     {
         printf("\nDeadlock detected.\n");
     }
-
     char choice;
     printf("\nDo you want to change the request vector for a process? (y/n): ");
     scanf(" %c", &choice);
-
     if (choice == 'y' || choice == 'Y')
     {
         int process;
@@ -569,8 +472,7 @@ int main()
         {
             scanf("%d", &request[j]);
         }
-
-        if (changeInRequestResources(n, m, process, request, allocation,  available, need))
+        if (changeInRequestResources(n, m, process, request, allocation, available, need))
         {
             printf("No deadlock\n");
         }
@@ -579,16 +481,12 @@ int main()
             printf("Deadlock Detected\n");
         }
     }
-
     return 0;
-}"
-,
-"------------------------------------------------------------
-Page Replacement
---------------------------------------------------------------
+}
+
+//---------- PAGE REPLACEMENT ALGORITHMS ----------
 #include <stdio.h>
 #include <limits.h>
-
 void fifo(int pages[], int n, int capacity) {
     int frame[capacity], front = 0, count = 0, faults = 0;
     for (int i = 0; i < capacity; i++) frame[i] = -1;
@@ -608,7 +506,6 @@ void fifo(int pages[], int n, int capacity) {
     }
     printf("FIFO Page Faults: %d\n", faults);
 }
-
 void lru(int pages[], int n, int capacity) {
     int frame[capacity], time[capacity], faults = 0, count = 0;
     for (int i = 0; i < capacity; i++) frame[i] = -1;
@@ -632,7 +529,6 @@ void lru(int pages[], int n, int capacity) {
     }
     printf("LRU Page Faults: %d\n", faults);
 }
-
 void optimal(int pages[], int n, int capacity) {
     int frame[capacity], faults = 0;
     for (int i = 0; i < capacity; i++) frame[i] = -1;
@@ -662,7 +558,6 @@ void optimal(int pages[], int n, int capacity) {
     }
     printf("Optimal Page Faults: %d\n", faults);
 }
-
 void second_chance(int pages[], int n, int capacity) {
     int frame[capacity], reference[capacity], front = 0, faults = 0;
     for (int i = 0; i < capacity; i++) {
@@ -691,27 +586,20 @@ void second_chance(int pages[], int n, int capacity) {
     }
     printf("Second Chance Page Faults: %d\n", faults);
 }
-
 int main() {
     int pages[] = {7, 0, 1, 2, 0, 3, 0, 4, 2, 3, 0, 3, 2};
     int n = sizeof(pages) / sizeof(pages[0]);
     int capacity = 3;
-
     fifo(pages, n, capacity);
     lru(pages, n, capacity);
     optimal(pages, n, capacity);
     second_chance(pages, n, capacity);
-
     return 0;
-}"
-,
-"----------------------------------------------------
-Memory management Shares
------------------------------------------------------
+}
 
+//---------- MEMORY MANAGEMENT STRATEGIES ----------
 #include <stdio.h>
 #include <stdbool.h>
-
 void firstFit(int bl[], int npr, int pr[], int nb) {
     int allocated[nb];
     bool finished[npr];
@@ -719,7 +607,6 @@ void firstFit(int bl[], int npr, int pr[], int nb) {
         allocated[i] = -1;
     for (int i = 0; i < npr; i++)
         finished[i] = false;
-
     for (int i = 0; i < nb; i++) {
         for (int j = 0; j < npr; j++) {
             if (!finished[j] && bl[j] >= pr[i]) {
@@ -738,7 +625,6 @@ void firstFit(int bl[], int npr, int pr[], int nb) {
             printf("Process %d -> Can't allocate\n", i + 1);
     }
 }
-
 void nextFit(int bl[], int npr, int pr[], int nb) {
     int allocated[nb];
     bool finished[npr];
@@ -746,16 +632,13 @@ void nextFit(int bl[], int npr, int pr[], int nb) {
         allocated[i] = -1;
     for (int i = 0; i < npr; i++)
         finished[i] = false;
-    
     int lastAllocated = 0;
-    
     for (int i = 0; i < nb; i++) {
         for (int j = lastAllocated; j < npr; j++) {
             if (!finished[j] && bl[j] >= pr[i]) {
                 allocated[i] = j;
                 finished[j] = true;
                 lastAllocated = j;
-
                 break;
             }
         }
@@ -769,25 +652,20 @@ void nextFit(int bl[], int npr, int pr[], int nb) {
             printf("Process %d -> Can't allocate\n", i + 1);
     }
 }
-
 void bestFit(int bl[], int npr, int pr[], int nb) {
     int allocated[nb]; 
     bool finished[npr];
-
     for (int i = 0; i < nb; i++)
         allocated[i] = -1;
     for (int i = 0; i < npr; i++)
         finished[i] = false;
-
     for (int i = 0; i < nb; i++) {
         int possibleBlocks[npr], count = 0;
-
         for (int j = 0; j < npr; j++) {
             if (!finished[j] && bl[j] >= pr[i]) {
                 possibleBlocks[count++] = j;
             }
         }
-
         if (count > 0) {
             int bestIdx = possibleBlocks[0];
             for (int k = 1; k < count; k++) {
@@ -795,7 +673,6 @@ void bestFit(int bl[], int npr, int pr[], int nb) {
                     bestIdx = possibleBlocks[k];
                 }
             }
-
             allocated[i] = bestIdx;
             finished[bestIdx] = true;
         }
@@ -809,25 +686,20 @@ void bestFit(int bl[], int npr, int pr[], int nb) {
             printf("Process %d -> Can't allocate\n", i + 1);
     }
 }
-
 void worstFit(int bl[], int npr, int pr[], int nb) {
     int allocated[nb]; 
     bool finished[npr];
-
     for (int i = 0; i < nb; i++)
         allocated[i] = -1;
     for (int i = 0; i < npr; i++)
         finished[i] = false;
-
     for (int i = 0; i < nb; i++) {
         int possibleBlocks[npr], count = 0;
-
         for (int j = 0; j < npr; j++) {
             if (!finished[j] && bl[j] >= pr[i]) {
                 possibleBlocks[count++] = j;
             }
         }
-
         if (count > 0) {
             int worstIdx = possibleBlocks[0];
             for (int k = 1; k < count; k++) {
@@ -835,7 +707,6 @@ void worstFit(int bl[], int npr, int pr[], int nb) {
                     worstIdx = possibleBlocks[k];
                 }
             }
-
             allocated[i] = worstIdx;
             finished[worstIdx] = true;
         }
@@ -849,7 +720,6 @@ void worstFit(int bl[], int npr, int pr[], int nb) {
             printf("Process %d -> Can't allocate\n", i + 1);
     }
 }
-
 int main() {
     int nb, npr;
     printf("Enter number of processes: ");
@@ -858,26 +728,20 @@ int main() {
     printf("Enter sizes of processes: ");
     for (int i = 0; i < nb; i++)
         scanf("%d", &pr[i]);
-
     printf("Enter number of blocks: ");
     scanf("%d", &npr);
     int bl[npr];
     printf("Enter sizes of blocks: ");
     for (int i = 0; i < npr; i++)
         scanf("%d", &bl[i]);
-    
     firstFit(bl, npr, pr, nb);
     nextFit(bl, npr, pr, nb);
     bestFit(bl, npr, pr, nb);
     worstFit(bl, npr, pr, nb);
-
     return 0;
-}"
-,
-"-----------------------------------------------
-Disk scheduling 
------------------------------------------------
+}
 
+//---------- DISK SCHEDULING ALGORITHMS ----------
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -1093,12 +957,4 @@ int main() {
 
     return 0;
 }
-"
-};
-  res.send(codes);
-});
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});

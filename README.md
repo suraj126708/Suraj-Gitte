@@ -13,9 +13,9 @@
     
 ## Complete Code
 
-```c
-//---------- DINING PHILOSOPHERS ----------
-#include <stdio.h>
+## dining 
+```
+ #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
 #include <semaphore.h>
@@ -73,8 +73,10 @@ int main() {
     }
     return 0;
 }
+```
 
-//---------- PRODUCER-CONSUMER ----------
+## producer
+```
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
@@ -126,8 +128,9 @@ int main() {
     pthread_mutex_destroy(&mutex);
     return 0;
 }
-
-//---------- READERS-WRITERS ----------
+```
+## reader
+```
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
@@ -190,8 +193,10 @@ int main() {
     sem_destroy(&rw_mutex);
     return 0;
 }
+```
 
-//---------- BANKER'S ALGORITHM ----------
+## banker
+```
 #include <stdio.h>
 #include <stdbool.h>
 #define MAX_PROCESSES 5
@@ -333,8 +338,9 @@ int main() {
     requestResources(process, request);
     return 0;
 }
-
-//---------- DEADLOCK DETECTION AND RESOLUTION ----------
+```
+## deadlock
+```
 #include <stdio.h>
 #include <stdbool.h>
 #define MAX_PROCESSES 10
@@ -484,8 +490,9 @@ int main()
     }
     return 0;
 }
-
-//---------- PAGE REPLACEMENT ALGORITHMS ----------
+```
+# page
+```
 #include <stdio.h>
 #include <limits.h>
 void fifo(int pages[], int n, int capacity) {
@@ -741,8 +748,9 @@ int main() {
     worstFit(bl, npr, pr, nb);
     return 0;
 }
-
-//---------- DISK SCHEDULING ALGORITHMS ----------
+```
+## disk
+```
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -958,8 +966,9 @@ int main() {
 
     return 0;
 }
-
-// ------------------------Scheduling (FCFS)---------------------------
+```
+## scheduling
+```
 #include <stdio.h>
 
 struct Process {
@@ -1562,5 +1571,5 @@ int main() {
 
   return 0;
 }
-
+```
 

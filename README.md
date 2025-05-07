@@ -13,7 +13,7 @@
     
 ## Complete Code
 
-## dining 
+## synchro 
 ```
  #include <stdio.h>
 #include <stdlib.h>
@@ -73,10 +73,7 @@ int main() {
     }
     return 0;
 }
-```
 
-## producer
-```
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
@@ -128,9 +125,7 @@ int main() {
     pthread_mutex_destroy(&mutex);
     return 0;
 }
-```
-## reader
-```
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>

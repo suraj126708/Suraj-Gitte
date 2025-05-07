@@ -1568,3 +1568,175 @@ int main() {
 }
 ```
 
+## shell
+
+```
+--------------- string operations -----------------------
+#!/bin/bash
+
+# Input string
+echo "Enter a string:"
+read str
+
+# 1. String Length
+echo "Length of string: ${#str}"
+
+# 2. Substring Extraction
+echo "Substring from index 2 to 5: ${str:2:4}"
+
+# 3. String Concatenation
+str2="BashScripting"
+concat="$str$str2"
+echo "Concatenated string: $concat"
+
+# 4. Replace substring
+replaced="${str/Shell/Bash}"
+echo "After replacement (Shell -> Bash): $replaced"
+
+# 5. Convert to Uppercase
+upper=$(echo "$str" | tr '[:lower:]' '[:upper:]')
+echo "Uppercase: $upper"
+
+# 6. Convert to Lowercase
+lower=$(echo "$str" | tr '[:upper:]' '[:lower:]')
+echo "Lowercase: $lower"
+
+# 7. Check if string is empty
+if [ -z "$str" ]; then
+    echo "String is empty"
+else
+    echo "String is not empty"
+fi
+
+# 8. Reverse a string
+reverse=$(echo "$str" | rev)
+echo "Reversed string: $reverse"
+
+# 9. Check if substring exists
+if [[ "$str" == *"script"* ]]; then
+    echo "Substring 'script' found"
+else
+    echo "Substring 'script' not found"
+fi
+
+# 10. Compare two strings
+echo "Enter another string to compare:"
+read str3
+if [ "$str" == "$str3" ]; then
+    echo "Strings are equal"
+else
+    echo "Strings are not equal"
+fi
+
+-------------------- problem 2 : arithmetic ----------------------
+
+#!/bin/bash
+
+# Input marks for 5 subjects
+echo "Enter marks for 5 subjects out of 100:"
+read -p "Subject 1: " s1
+read -p "Subject 2: " s2
+read -p "Subject 3: " s3
+read -p "Subject 4: " s4
+read -p "Subject 5: " s5
+
+# Arithmetic Operations
+total=$((s1 + s2 + s3 + s4 + s5))
+average=$((total / 5))
+
+# Display total and average
+echo "Total Marks: $total"
+echo "Average Marks: $average"
+
+# Grading System
+if [ $average -ge 90 ]; then
+    echo "Grade: A+"
+elif [ $average -ge 80 ]; then
+    echo "Grade: A"
+elif [ $average -ge 70 ]; then
+    echo "Grade: B"
+elif [ $average -ge 60 ]; then
+    echo "Grade: C"
+elif [ $average -ge 50 ]; then
+    echo "Grade: D"
+else
+    echo "Grade: F (Fail)"
+fi
+
+# Pass/Fail Status
+if [ $s1 -lt 35 ] || [ $s2 -lt 35 ] || [ $s3 -lt 35 ] || [ $s4 -lt 35 ] || [ $s5 -lt 35 ]; then
+    echo "Status: Fail (One or more subjects below 35)"
+else
+    echo "Status: Pass"
+fi
+
+----------------- problem 3 --------------------
+
+#!/bin/bash
+
+echo "Enter a number:"
+read num
+
+# 1. Palindrome Check
+rev=0
+temp=$num
+while [ $temp -gt 0 ]; do
+    digit=$((temp % 10))
+    rev=$((rev * 10 + digit))
+    temp=$((temp / 10))
+done
+
+if [ $rev -eq $num ]; then
+    echo "$num is a Palindrome number"
+else
+    echo "$num is NOT a Palindrome number"
+fi
+
+# 2. Prime Number Check
+is_prime=1
+if [ $num -le 1 ]; then
+    is_prime=0
+else
+    for ((i = 2; i <= num / 2; i++)); do
+        if [ $((num % i)) -eq 0 ]; then
+            is_prime=0
+            break
+        fi
+    done
+fi
+
+if [ $is_prime -eq 1 ]; then
+    echo "$num is a Prime number"
+else
+    echo "$num is NOT a Prime number"
+fi
+
+# 3. Fibonacci Series up to num terms
+echo "Fibonacci series up to $num terms:"
+a=0
+b=1
+for ((i = 0; i < num; i++)); do
+    echo -n "$a "
+    fn=$((a + b))
+    a=$b
+    b=$fn
+done
+echo
+
+# 4. Armstrong Number Check (Only for 3-digit numbers)
+sum=0
+temp=$num
+n=${#num}  # Number of digits
+while [ $temp -gt 0 ]; do
+    digit=$((temp % 10))
+    sum=$((sum + digit ** n))
+    temp=$((temp / 10))
+done
+
+if [ $sum -eq $num ]; then
+    echo "$num is an Armstrong number"
+else
+    echo "$num is NOT an Armstrong number"
+fi
+
+```

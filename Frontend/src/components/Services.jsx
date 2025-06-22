@@ -97,7 +97,7 @@ const ServicesPage = () => {
           <ServicesStack />
 
           <h2 className="text-2xl font-semibold mt-6 text-white heading mb-2">
-            Testimonials
+            Achievements And Certifications
           </h2>
           <div className="border-t border-purple-500 mb-6"></div>
           <ServicesTestimonials />

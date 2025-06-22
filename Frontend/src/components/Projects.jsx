@@ -27,12 +27,12 @@ function Projects() {
       link: "https://coal-mines-worker-safety-website-ui.vercel.app/",
     },
     {
-      name: "PortFolio",
-      year: 2021,
-      description: "My old Portfolio",
+      name: "College Predictor",
+      year: 2025,
+      description: "College Predictor",
       image:
-        "https://media.licdn.com/dms/image/v2/D4D22AQFrcL7qtsJbaw/feedshare-shrink_2048_1536/B4DZO15cJGGgAs-/0/1733923559544?e=1739404800&v=beta&t=BQjvzzDfOmgNoFMEoaJ8wQ5eW1jcMhWTA8lDJ49MHtk",
-      link: "https://suraj126708.github.io/Myportfolio/",
+        "https://media.licdn.com/dms/image/v2/D4D22AQGziT--xUJn1A/feedshare-shrink_800/B4DZd3NfFTGgAg-/0/1750051714911?e=1753315200&v=beta&t=2bWdR0rAdS1bdlIxDXGmfeOaxiihhf_BRGoMlKjnYEc",
+      link: "https://techzdada.in",
     },
   ];
 

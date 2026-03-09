@@ -2,6 +2,7 @@ import ProjectCard from "./Heropage/ProjectCard";
 import ngo from "../assets/ngo.png";
 import gym from "../assets/gym.png";
 import coalMine from "../assets/coalmine.png";
+import collegePredictor from "../assets/Screenshot (431).png"
 
 function Projects() {
   const projectData = [
@@ -22,7 +23,7 @@ function Projects() {
     {
       name: "MineSafe",
       year: 2024,
-      description: "coal mine Worker safety Sysytem",
+      description: "coal mine Worker safety Management System",
       image: coalMine,
       link: "https://coal-mines-worker-safety-website-ui.vercel.app/",
     },
@@ -30,8 +31,7 @@ function Projects() {
       name: "College Predictor",
       year: 2025,
       description: "College Predictor",
-      image:
-        "https://media.licdn.com/dms/image/v2/D4D22AQGziT--xUJn1A/feedshare-shrink_800/B4DZd3NfFTGgAg-/0/1750051714911?e=1753315200&v=beta&t=2bWdR0rAdS1bdlIxDXGmfeOaxiihhf_BRGoMlKjnYEc",
+      image: collegePredictor,
       link: "https://techzdada.in",
     },
   ];

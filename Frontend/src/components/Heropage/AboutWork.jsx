@@ -1,4 +1,4 @@
-import techInnovationsLogo from "../../assets/techinnovations.png";
+import techInnovationsLogo from "../../assets/TechInnovation.png";
 import techzDadaLogo from "../../assets/techzdada.png";
 
 function AboutWork() {

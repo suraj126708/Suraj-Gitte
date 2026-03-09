@@ -1,76 +1,97 @@
+import techInnovationsLogo from "../../assets/techinnovations.png";
+import techzDadaLogo from "../../assets/techzdada.png";
+
 function AboutWork() {
   return (
     <div className="text-gray-400 min-h-screen p-8">
-      {/* Abhivriddhi - Graphic Design Head */}
+      {/* TechInnovations Industry Project */}
       <div className="mb-12">
-        {/* Logo Image */}
         <div className="mb-4 flex justify-start items-center gap-4">
           <img
-            src="https://media.licdn.com/dms/image/v2/D4D0BAQHmfZjyCqdF-A/company-logo_100_100/company-logo_100_100/0/1687788410133/stnd_vit_pune_logo?e=1741219200&v=beta&t=r4BxpycoVyfQEBm949cjxI7twBpUX1pU7zOwbH9J4Fw"
-            alt="Abhivriddhi Logo"
+            src={techInnovationsLogo}
+            alt="TechInnovations Logo"
             className="w-8 h-8 object-contain"
           />
           <h2 className="text-2xl text-white font-semibold">
-            Graphic Design Head
+            Full Stack Developer
           </h2>
         </div>
-        {/* Job Title and Description */}
+
         <p className="text-lg text-gray-500 mb-4">
-          Abhivriddhi - Student Training & Development Committee, VIT Pune
+          TechInnovations Industry Project — EDUAI: Question Paper Generation
+          and Evaluation System
         </p>
-        <p className="text-sm text-gray-400">Aug 2024 - Present · 4 months</p>
+
+        <p className="text-sm text-gray-400">
+          Sept 2025 - Jan 2026 · 5 months
+        </p>
+
         <ul className="mt-4 list-disc pl-5 text-lg">
           <li>
-            Leading a talented team to create visually compelling and impactful
-            designs.
-          </li>
-          <li>Ensuring high-quality standards in all design projects.</li>
-          <li>
-            Fostering a collaborative environment to drive innovation in design
-            work.
+            Built a scalable multi-tenant web platform with secure role-based
+            access for automated question paper generation and evaluation.
           </li>
           <li>
-            Utilizing design tools such as Adobe Illustrator, Canva, Figma, and
-            Photoshop.
+            Implemented a RAG-powered backend using FastAPI and Qdrant Cloud to
+            support efficient document retrieval and AI-based processing.
+          </li>
+          <li>
+            Developed a hybrid PDF parsing engine using asynchronous OCR to
+            process documents with significantly reduced latency.
+          </li>
+          <li>
+            Designed system architecture capable of handling high concurrency
+            and secure data isolation across multiple users.
           </li>
         </ul>
+
         <p className="text-sm text-gray-500 mt-2">
-          Location: Pune, Maharashtra, India (On-site)
+          Location: Pune, Maharashtra, India
         </p>
       </div>
 
+      {/* TechzDada Platform */}
       <div>
         <div className="mb-4 flex justify-start items-center gap-4">
           <img
-            src="https://media.licdn.com/dms/image/v2/D4D0BAQHmfZjyCqdF-A/company-logo_100_100/company-logo_100_100/0/1687788410133/stnd_vit_pune_logo?e=1741219200&v=beta&t=r4BxpycoVyfQEBm949cjxI7twBpUX1pU7zOwbH9J4Fw"
-            alt="Abhivriddhi Logo"
+            src={techzDadaLogo}
+            alt="TechzDada Logo"
             className="w-8 h-8 object-contain"
           />
           <h2 className="text-2xl text-white font-semibold">
-            Graphic Design Coordinator
+            Full Stack Developer
           </h2>
         </div>
+
         <p className="text-lg text-gray-500 mb-4">
-          Abhivriddhi - Student Training & Development Committee, VIT Pune
+          TechzDada Educational Platform
         </p>
-        <p className="text-sm text-gray-400">Oct 2023 - Aug 2024 · 11 months</p>
+
+        <p className="text-sm text-gray-400">
+          Apr 2025 - June 2025 · 3 months
+        </p>
+
         <ul className="mt-4 list-disc pl-5 text-lg">
           <li>
-            Organized and facilitated workshops, seminars, and events for
-            student development.
+            Developed a production-scale MERN + ML platform providing college
+            analysis and percentile prediction for students.
           </li>
           <li>
-            Collaborated with other coordinators and trainers to ensure the
-            success of programs.
+            Implemented scalable REST APIs and optimized backend data handling
+            for efficient application performance.
           </li>
-          <li>Enhanced project management and teamwork skills.</li>
           <li>
-            Contributed to the growth and development of the student community
-            at VIT Pune.
+            Built features supporting thousands of users and high traffic with
+            fast response times.
+          </li>
+          <li>
+            Contributed to improving user experience by designing reliable
+            backend workflows and data-driven insights.
           </li>
         </ul>
+
         <p className="text-sm text-gray-500 mt-2">
-          Location: Pune, Maharashtra, India
+          Location: Remote
         </p>
       </div>
     </div>
